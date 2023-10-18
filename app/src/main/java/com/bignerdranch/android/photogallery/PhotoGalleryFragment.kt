@@ -11,6 +11,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -76,6 +77,8 @@ class PhotoGalleryFragment : Fragment() {
                     }
                     searchView?.setQuery(state.query, false)
                     updatePollingState(state.isPolling)
+
+                    removeSubtitle()
                 }
             }
         }
@@ -93,6 +96,14 @@ class PhotoGalleryFragment : Fragment() {
         val searchItem: MenuItem = menu.findItem(R.id.menu_item_search)
         searchView = searchItem.actionView as? SearchView
         pollingMenuItem = menu.findItem(R.id.menu_item_toggle_polling)
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                photoGalleryViewModel.uiState.collect { state ->
+                    setPollingButtonTitle(state.isPolling)
+                }
+            }
+        }
 
         searchView?.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
@@ -159,6 +170,21 @@ class PhotoGalleryFragment : Fragment() {
         if (view != null) {
             val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.hideSoftInputFromWindow(view.windowToken, 0)
+        }
+    }
+
+    private fun removeSubtitle() {
+        val parent = requireActivity() as AppCompatActivity
+        parent.supportActionBar?.subtitle = ""
+    }
+
+    private fun setPollingButtonTitle(state: Boolean) {
+        if (pollingMenuItem != null) {
+            if (state) {
+                pollingMenuItem?.setTitle(R.string.stop_polling)
+            } else {
+                pollingMenuItem?.setTitle(R.string.start_polling)
+            }
         }
     }
 }
