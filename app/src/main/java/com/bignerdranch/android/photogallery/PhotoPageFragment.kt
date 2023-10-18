@@ -2,12 +2,14 @@ package com.bignerdranch.android.photogallery
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.navArgs
@@ -58,6 +60,21 @@ class PhotoPageFragment : Fragment() {
                     }
                 }
             }
+
+            val backDispatcher = requireActivity().onBackPressedDispatcher
+            val callback = object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    if (webView.canGoBack()) {
+                        webView.goBack()
+                    } else {
+                        // Change parameter for OnBackPressedCallback to false to deactivate it
+                        // and resume default behavior
+                        isEnabled = false
+                        requireActivity().onBackPressed()
+                    }
+                }
+            }
+            backDispatcher.addCallback(viewLifecycleOwner, callback)
         }
 
         return binding.root
