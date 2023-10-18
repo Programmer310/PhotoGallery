@@ -100,7 +100,7 @@ class PhotoGalleryFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 photoGalleryViewModel.uiState.collect { state ->
-                    setPollingButtonTitle(state.isPolling)
+                    setPollingTitle(state.isPolling)
                 }
             }
         }
@@ -178,13 +178,15 @@ class PhotoGalleryFragment : Fragment() {
         parent.supportActionBar?.subtitle = ""
     }
 
-    private fun setPollingButtonTitle(state: Boolean) {
+    private fun setPollingTitle(isPolling: Boolean) {
         if (pollingMenuItem != null) {
-            if (state) {
-                pollingMenuItem?.setTitle(R.string.stop_polling)
+            val toggleItemTitle = if (isPolling) {
+                R.string.stop_polling
             } else {
-                pollingMenuItem?.setTitle(R.string.start_polling)
+                R.string.start_polling
             }
+
+            pollingMenuItem?.setTitle(toggleItemTitle)
         }
     }
 }
